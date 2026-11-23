@@ -23,6 +23,8 @@ fi
 while IFS= read -r ref; do
   path="${ref#./}"
   path="${path%%[?#]*}"
+  # optional self-hosted Chart.js fallback (only present if you add it)
+  [ "$path" = "assets/js/chart.umd.min.js" ] && continue
   if [ ! -f "$OUT/$path" ]; then
     echo "ERROR: index.html references missing file: $ref" >&2
     fail=1

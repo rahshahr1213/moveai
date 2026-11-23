@@ -100,6 +100,15 @@
 
 <div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg">Done</span></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>window.Chart||document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"><\/script>')</script>
+<script>window.Chart||document.write('<script src="./assets/js/chart.umd.min.js"><\/script>')</script>
+<script>
+/* Last resort: if Chart.js could not load from any source, keep the app working without charts. */
+if(!window.Chart){
+  window.Chart=function(el){el.parentNode.innerHTML='<div class="empty-state">Chart unavailable: Chart.js could not be loaded.</div>';this.data={datasets:[{}]};this.options={scales:{x:{ticks:{}}}};this.update=this.destroy=function(){}};
+  window.Chart.defaults={font:{}};
+}
+</script>
 <script src="./assets/js/store.js"></script>
 <script src="./assets/js/pages.js"></script>
 <script src="./assets/js/app.js"></script>
