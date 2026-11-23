@@ -98,3 +98,10 @@ All data is local demo storage (localStorage). Nothing here is real security or 
 Use the **Demo role** switcher at the bottom of the sidebar (Admin / Supervisor, plus which supervisor you act as).
 Pages: Overview, My participants, My sessions (with detail view), Attendance, Movement tracking, Object interactions, Reports, Notifications, My profile, Settings.
 The role switch is a **frontend simulation only**: it is not authentication and gives no real security. Movement metrics are demo values; no camera, pose or AI tracking and no email/push notifications are connected. Data is stored in this browser only.
+
+## Advanced analytics (Admin)
+
+Sidebar: **Analytics** opens ten tabs: Overview, Participants, Movement, Activities, Sessions, Attendance, Objects, Supervisors, Comparisons, Data quality.
+All numbers are calculated in `assets/js/analytics.js` (pure functions, no DOM) from records stored in this browser. Missing values show as "—" or "Not enough data"; nothing is estimated, except distance/speed on the Movement page, which are labelled demo-derived estimates.
+Exports on each page: CSV, JSON, and **Print / Save as PDF** (uses the browser print dialog; choose "Save as PDF").
+Run the calculation tests: `node tests/analytics.test.js`

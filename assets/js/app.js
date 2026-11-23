@@ -93,7 +93,7 @@ var PAGES = {
   participants: { crumb:'Participants', render: function(el){ MovePages.participants(el); } },
   sessions: { crumb:'Sessions', render: function(el){ MovePages.sessions(el); } },
   tracking: { crumb:'Movement tracking', render: function(el){ MovePages.tracking(el); } },
-  analytics: { crumb:'Analytics', render: function(el){ renderPlaceholder(el,'Analytics','chart','Deeper cross-session analytics and cohort comparisons are planned for the next milestone.'); } },
+  analytics: { crumb:'Analytics', render: function(el){ MoveAN.pages['an-overview'](el); } },
   reports: { crumb:'Reports', render: function(el){ MovePages.reports(el); } },
   supervisors: { crumb:'Supervisors', render: function(el){ MoveAdmin.supervisors(el); } },
   activities: { crumb:'Activities', render: function(el){ MoveAdmin.activities(el); } },
@@ -408,6 +408,7 @@ function buildCharts(){
 }
 
 /* ================= navigation / routing ================= */
+MoveAN.tabs.forEach(function(t){var k=t[0];PAGES[k]={crumb:'Analytics \u00b7 '+t[1],render:function(el){MoveAN.pages[k](el)}}});
 /* ---- Supervisor panel pages + frontend-only role simulation ---- */
 MoveSV.nav.forEach(function(n){var k=n[0].slice(3);PAGES[n[0]]={crumb:n[1],render:function(el){MoveSV.pages[k](el);MoveSV.badge()}}});
 var adminNav=document.getElementById('nav').innerHTML;
@@ -431,7 +432,7 @@ function setActivePage(page, opts){
   if(supRole && !isSv) page = 'sv-overview'; else if(!supRole && isSv) page = 'overview';
   if(wanted !== page && opts && opts.fromHash) history.replaceState(null, '', '#/' + page);
   syncStore();
-  document.querySelectorAll('.nav-item[data-page]').forEach(function(n){ n.classList.toggle('active', n.dataset.page===page); });
+  document.querySelectorAll('.nav-item[data-page]').forEach(function(n){ n.classList.toggle('active', n.dataset.page===(page.indexOf('an-')===0?'analytics':page)); });
   document.getElementById('crumbPage').textContent = PAGES[page].crumb;
   document.title = PAGES[page].crumb + ' \u00b7 MOVE AI';
   var content = document.getElementById('content');
@@ -516,6 +517,6 @@ searchInput.addEventListener('focus', function(){ if(searchInput.value.trim()) s
 /* back/forward buttons and shared deep links such as #/sessions */
 applyRole();
 window.addEventListener('popstate', function(){ setActivePage(pageFromHash(), {fromHash:true}); });
-window.addEventListener('hashchange', function(){ if((document.querySelector('.nav-item.active')||{dataset:{}}).dataset.page !== pageFromHash()) setActivePage(pageFromHash(), {fromHash:true}); });
+window.addEventListener('hashchange', function(){ if((document.querySelector('.nav-item.active')||{dataset:{}}).dataset.page !== (pageFromHash().indexOf('an-')===0?'analytics':pageFromHash())) setActivePage(pageFromHash(), {fromHash:true}); });
 setActivePage(pageFromHash(), {fromHash:true, keepScroll:true});
 })();
