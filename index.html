@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MOVE AI dashboard</title>
+<meta name="description" content="MOVE AI: movement analytics for interactive environments. Demo dashboard with sample data.">
+<meta name="theme-color" content="#0f1b2d">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+<link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 17 L10 7 L14 14 L20 4"/></svg></div>
+      <div>
+        <div class="name">MOVE AI</div>
+        <div class="tag">Movement analytics</div>
+      </div>
+    </div>
+    <div class="nav-label">Workspace</div>
+    <nav id="nav">
+      <button class="nav-item" data-page="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Overview</button>
+      <button class="nav-item" data-page="participants"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.3"/><path d="M15.5 13c2.8.2 5 2.6 5 5.5"/></svg>Participants</button>
+      <button class="nav-item" data-page="sessions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Sessions</button>
+      <button class="nav-item" data-page="tracking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 9 9l4 4 8-9"/><circle cx="9" cy="9" r="1.3" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r="1.3" fill="currentColor" stroke="none"/></svg>Movement tracking</button>
+      <button class="nav-item" data-page="analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Analytics</button>
+      <button class="nav-item" data-page="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l4 4v16H6z"/><path d="M15 2v4h4M9 13h6M9 17h6"/></svg>Reports</button>
+      <button class="nav-item" data-page="supervisors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.9-4 3.7-6 7.5-6s6.6 2 7.5 6"/></svg>Supervisors</button>
+      <button class="nav-item" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.7a7.4 7.4 0 0 0-2.6-1.5L14 2h-4l-.4 2.7a7.4 7.4 0 0 0-2.6 1.5l-2.4-.7-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.7c.8.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.7c1-.3 1.8-.8 2.6-1.5l2.4.7 2-3.4z"/></svg>Settings</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="nav-item" id="helpBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 1.8-2.4 3.3"/><circle cx="12" cy="17" r=".4" fill="currentColor"/></svg>Help center</button>
+      <button class="nav-item" data-page="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.9-4 3.7-6 7.5-6s6.6 2 7.5 6"/></svg>User profile</button>
+      <button class="nav-item" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.7a7.4 7.4 0 0 0-2.6-1.5L14 2h-4l-.4 2.7a7.4 7.4 0 0 0-2.6 1.5l-2.4-.7-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.7c.8.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.7c1-.3 1.8-.8 2.6-1.5l2.4.7 2-3.4z"/></svg>Account settings</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+
+      <div class="breadcrumb"><span>MOVE AI</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg><b id="crumbPage">Overview</b></div>
+
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchInput" placeholder="Search participants, sessions, reports…" autocomplete="off" />
+        <div class="search-results" id="searchResults"></div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="dropdown-wrap">
+          <button class="date-chip" id="dateChip" style="display:flex">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+            <span id="dateChipLabel">Last 14 days</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown date-pop" id="datePop">
+            <button class="date-opt active" data-range="7">Last 7 days</button>
+            <button class="date-opt" data-range="14">Last 14 days</button>
+            <button class="date-opt" data-range="30">Last 30 days</button>
+            <button class="date-opt" data-range="90">Last 90 days</button>
+          </div>
+        </div>
+
+        <button class="btn" id="exportBtn" aria-label="Export report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/></svg><span class="export-label">Export report</span></button>
+
+        <div class="dropdown-wrap">
+          <button class="icon-btn" id="notifBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot" id="notifDot"></span></button>
+          <div class="dropdown" id="notifPanel">
+            <div class="dropdown-head"><h4>Notifications</h4><button id="markRead">Mark all read</button></div>
+            <div id="notifList"></div>
+          </div>
+        </div>
+
+        <div class="dropdown-wrap">
+          <button class="user-chip" id="userBtn">
+            <div class="avatar">SM</div>
+            <div class="who"><b>Sarah Miller</b><span>Program lead</span></div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown user-menu" id="userPanel">
+            <button class="user-menu-item" data-page="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.9-4 3.7-6 7.5-6s6.6 2 7.5 6"/></svg>View profile</button>
+            <button class="user-menu-item" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.7a7.4 7.4 0 0 0-2.6-1.5L14 2h-4l-.4 2.7a7.4 7.4 0 0 0-2.6 1.5l-2.4-.7-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.7c.8.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.7c1-.3 1.8-.8 2.6-1.5l2.4.7 2-3.4z"/></svg>Account settings</button>
+            <div class="user-menu-divider"></div>
+            <button class="user-menu-item" id="signOutBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content" id="content"></main>
+    <footer>MOVE AI · Movement analytics for interactive environments · all data on this page is sample data · v0.1 preview build</footer>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg">Done</span></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="./assets/js/app.js"></script>
+</body>
+</html>

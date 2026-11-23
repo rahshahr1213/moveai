@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Page not found · MOVE AI</title>
+<link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font:15px/1.5 system-ui,-apple-system,sans-serif;background:#f5f6f8;color:#10192b;text-align:center;padding:24px}
+  a{display:inline-block;margin-top:16px;padding:9px 16px;border-radius:9px;background:#2f6fed;color:#fff;text-decoration:none;font-weight:600}
+  @media (prefers-color-scheme:dark){body{background:#0a0f1a;color:#eef1f7}}
+</style>
+</head>
+<body>
+  <main>
+    <h1>Page not found</h1>
+    <p>That address doesn't exist on this site.</p>
+    <!-- Relative links resolve against the current URL, so derive the site root from the first path segment (the repo name on GitHub Pages). -->
+    <a id="home" href="./">Back to the dashboard</a>
+  </main>
+  <script>
+    (function(){
+      var seg = location.pathname.split('/').filter(Boolean)[0];
+      var onPages = /\.github\.io$/.test(location.hostname) && seg;
+      document.getElementById('home').href = onPages ? '/' + seg + '/' : '/';
+    })();
+  </script>
+</body>
+</html>
