@@ -39,6 +39,7 @@
       <button class="nav-item" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.7a7.4 7.4 0 0 0-2.6-1.5L14 2h-4l-.4 2.7a7.4 7.4 0 0 0-2.6 1.5l-2.4-.7-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.7c.8.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.7c1-.3 1.8-.8 2.6-1.5l2.4.7 2-3.4z"/></svg>Settings</button>
     </nav>
     <div class="sidebar-bottom">
+      <div class="role-switch" style="padding:6px 10px;display:grid;gap:6px"><label for="roleSel" class="muted" style="font-size:11px">Demo role (simulation only)</label><select id="roleSel"><option>Admin</option><option>Supervisor</option></select><select id="svSel" aria-label="Acting supervisor" hidden></select></div>
       <button class="nav-item" id="helpBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 1.8-2.4 3.3"/><circle cx="12" cy="17" r=".4" fill="currentColor"/></svg>Help center</button>
       <button class="nav-item" data-page="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c.9-4 3.7-6 7.5-6s6.6 2 7.5 6"/></svg>User profile</button>
       <button class="nav-item" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.7a7.4 7.4 0 0 0-2.6-1.5L14 2h-4l-.4 2.7a7.4 7.4 0 0 0-2.6 1.5l-2.4-.7-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.7c.8.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.7c1-.3 1.8-.8 2.6-1.5l2.4.7 2-3.4z"/></svg>Account settings</button>
@@ -117,6 +118,7 @@ if(!window.Chart){
 <script src="./assets/js/store.js"></script>
 <script src="./assets/js/pages.js"></script>
 <script src="./assets/js/admin.js"></script>
+<script src="./assets/js/sv.js"></script>
 <script src="./assets/js/app.js"></script>
 </body>
 </html>

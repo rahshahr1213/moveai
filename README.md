@@ -92,3 +92,9 @@ When you add Laravel/PHP/MySQL, host it separately (a VPS, Forge, Railway, etc.)
 - **Settings**: organization, defaults, activity categories (all saved in the browser only).
 
 All data is local demo storage (localStorage). Nothing here is real security or a real server.
+
+## Supervisor panel
+
+Use the **Demo role** switcher at the bottom of the sidebar (Admin / Supervisor, plus which supervisor you act as).
+Pages: Overview, My participants, My sessions (with detail view), Attendance, Movement tracking, Object interactions, Reports, Notifications, My profile, Settings.
+The role switch is a **frontend simulation only**: it is not authentication and gives no real security. Movement metrics are demo values; no camera, pose or AI tracking and no email/push notifications are connected. Data is stored in this browser only.

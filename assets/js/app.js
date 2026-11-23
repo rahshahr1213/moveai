@@ -408,12 +408,28 @@ function buildCharts(){
 }
 
 /* ================= navigation / routing ================= */
+/* ---- Supervisor panel pages + frontend-only role simulation ---- */
+MoveSV.nav.forEach(function(n){var k=n[0].slice(3);PAGES[n[0]]={crumb:n[1],render:function(el){MoveSV.pages[k](el);MoveSV.badge()}}});
+var adminNav=document.getElementById('nav').innerHTML;
+function applyRole(){
+  var sup=MoveStore.role()==='Supervisor',sel=document.getElementById('roleSel'),sv=document.getElementById('svSel');
+  document.getElementById('nav').innerHTML=sup?MoveSV.navHtml():adminNav;
+  sel.value=sup?'Supervisor':'Admin';
+  sv.hidden=!sup;sv.innerHTML=MoveStore.get('supervisors').filter(function(v){return v.status==='Active'}).map(function(v){return'<option value="'+v.id+'"'+(v.id===MoveStore.svId()?' selected':'')+'>'+v.name+'</option>'}).join('');
+  MoveSV.badge();
+}
+document.getElementById('roleSel').addEventListener('change',function(e){MoveStore.setRole(e.target.value);applyRole();setActivePage(e.target.value==='Supervisor'?'sv-overview':'overview');showToast('Demo role: '+e.target.value+' (frontend simulation, not security)');});
+document.getElementById('svSel').addEventListener('change',function(e){MoveStore.setRole('Supervisor',e.target.value);applyRole();setActivePage('sv-overview');});
 function pageFromHash(){
   var m = /^#\/?([a-z-]+)/.exec(location.hash || '');
   return m && PAGES[m[1]] ? m[1] : 'overview';
 }
 function setActivePage(page, opts){
   if(!PAGES[page]) page = 'overview';
+  var supRole = MoveStore.role()==='Supervisor', isSv = page.indexOf('sv-')===0;
+  var wanted = page;
+  if(supRole && !isSv) page = 'sv-overview'; else if(!supRole && isSv) page = 'overview';
+  if(wanted !== page && opts && opts.fromHash) history.replaceState(null, '', '#/' + page);
   syncStore();
   document.querySelectorAll('.nav-item[data-page]').forEach(function(n){ n.classList.toggle('active', n.dataset.page===page); });
   document.getElementById('crumbPage').textContent = PAGES[page].crumb;
@@ -498,7 +514,8 @@ searchInput.addEventListener('focus', function(){ if(searchInput.value.trim()) s
 
 /* ---- init ---- */
 /* back/forward buttons and shared deep links such as #/sessions */
+applyRole();
 window.addEventListener('popstate', function(){ setActivePage(pageFromHash(), {fromHash:true}); });
-window.addEventListener('hashchange', function(){ if(document.querySelector('.nav-item.active').dataset.page !== pageFromHash()) setActivePage(pageFromHash(), {fromHash:true}); });
+window.addEventListener('hashchange', function(){ if((document.querySelector('.nav-item.active')||{dataset:{}}).dataset.page !== pageFromHash()) setActivePage(pageFromHash(), {fromHash:true}); });
 setActivePage(pageFromHash(), {fromHash:true, keepScroll:true});
 })();

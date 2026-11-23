@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 var KEY='moveai.data.v1', BKEY='moveai.backup.v1', COLS=['participants','sessions','activities','movements','objects','reports'];
-var PFX={participants:'PT',sessions:'S',activities:'A',movements:'EV',objects:'OI',reports:'R',supervisors:'SV',audit:'AU'};
+var PFX={participants:'PT',sessions:'S',activities:'A',movements:'EV',objects:'OI',reports:'R',supervisors:'SV',audit:'AU',notifications:'N',attendance:'AT',notes:'NT'};
 var MT=['Walking','Running','Jumping','Crawling','Balancing','Reaching','Climbing','Turning','Stretching','Other'];
 var OB=['Balls','Elastic Elements','Walls','Floor Areas','Interactive Objects','Other'];
 var IT=['Touch','Push','Pull','Throw','Step on','Climb on','Other'];
@@ -45,12 +45,19 @@ function ensure(){
       return{id:'SV-'+(101+i),name:n,email:n.toLowerCase().replace(/[^a-z]+/g,'.')+'@example.org',status:'Active',participantIds:Object.keys(pid),createdAt:iso(dAgo(90))}});
   }
   if(!Array.isArray(db.audit))db.audit=[];
-  if(!db.settings||typeof db.settings!=='object')db.settings={org:'MOVE AI Demo Lab',platform:'MOVE AI',actor:'Admin (demo)',sessionMinutes:20,sessionStatus:'Pending',pageSize:10,categories:CATS.slice()};
+  if(!Array.isArray(db.notes))db.notes=[];
+  if(!Array.isArray(db.attendance)){var ST=['Present','Present','Present','Late','Present','Absent','Excused'];
+    db.attendance=db.sessions.filter(function(x){return x.status==='Completed'}).map(function(x,i){return{id:'AT-'+(1001+i),sessionId:x.id,participantId:x.participantId,status:ST[i%ST.length],note:'',at:x.date+'T'+(x.start||'09:00')}})}
+  if(!Array.isArray(db.notifications)){db.notifications=[];db.supervisors.forEach(function(v,i){db.notifications.push({id:'N-'+(100+i*2),supervisorId:v.id,text:'Welcome to the Supervisor Panel (demo notifications).',read:false,at:iso(dAgo(2))+'T09:00'},{id:'N-'+(101+i*2),supervisorId:v.id,text:'You have '+v.participantIds.length+' participants assigned.',read:i%2===0,at:iso(dAgo(1))+'T10:00'})})}
+  if(!db.settings||typeof db.settings!=='object')db.settings={org:'MOVE AI Demo Lab',platform:'MOVE AI',actor:'Admin (demo)',sessionMinutes:20,sessionStatus:'Pending',pageSize:10,categories:CATS.slice(),role:'Admin',svId:null,svUpcomingDays:14};
+  var cf=db.settings;if(cf.role===undefined)cf.role='Admin';if(cf.svUpcomingDays===undefined)cf.svUpcomingDays=14;if(!cf.svId||!db.supervisors.some(function(v){return v.id===cf.svId}))cf.svId=db.supervisors[0]?db.supervisors[0].id:null;
 }
 function log(action,type,id,detail){
   db.audit.unshift({id:nextId('audit'),actor:db.settings.actor||'Admin (demo)',action:action,type:type,recordId:id||'—',detail:detail||'',at:new Date().toISOString()});
   if(db.audit.length>500)db.audit.length=500;
 }
+function notifyReport(r){var se=S.byId('sessions',r.sessionId),v=se&&db.supervisors.filter(function(x){return x.name===se.supervisor})[0];
+  if(v&&(r.status==='Approved'||r.status==='Rejected'))db.notifications.unshift({id:nextId('notifications'),supervisorId:v.id,text:'Report '+r.id+' was '+r.status.toLowerCase()+'.'+(r.feedback?' Admin feedback: '+r.feedback:''),read:false,at:new Date().toISOString()});return true}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){return false}return true}
 function valid(o){return o&&typeof o==='object'&&COLS.every(function(c){return Array.isArray(o[c])})}
 function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(valid(r)){db=r;ensure();return}}catch(e){}db=seed();ensure();save()}
@@ -60,7 +67,7 @@ var S=window.MoveStore={CATEGORIES:CATS,MOVEMENT_TYPES:MT,OBJECTS:OB,INTERACTION
   byId:function(c,id){return db[c].filter(function(r){return r.id===id})[0]||null},
   add:function(c,rec){rec.id=rec.id||nextId(c);db[c].push(rec);if(LABEL[c])log(LABEL[c]+' created',LABEL[c],rec.id,rec.name||rec.code||'');save();return rec},
   update:function(c,id,patch){var r=S.byId(c,id);if(!r)return null;var oldSt=r.status,oldSup=r.supervisor;Object.keys(patch).forEach(function(k){r[k]=patch[k]});
-    if(LABEL[c]){if(c==='sessions'&&patch.status==='Completed'&&oldSt!=='Completed')log('Session completed','Session',id,r.code);else if(c==='sessions'&&patch.supervisor&&patch.supervisor!==oldSup)log('Supervisor assigned','Session',id,patch.supervisor);else if(c==='reports'&&patch.status&&patch.status!==oldSt)log('Report '+patch.status.toLowerCase(),'Report',id,r.status);else log(LABEL[c]+' updated',LABEL[c],id,r.name||r.code||'')}
+    if(LABEL[c]){if(c==='sessions'&&patch.status==='Completed'&&oldSt!=='Completed')log('Session completed','Session',id,r.code);else if(c==='sessions'&&patch.supervisor&&patch.supervisor!==oldSup)log('Supervisor assigned','Session',id,patch.supervisor);else if(c==='reports'&&patch.status&&patch.status!==oldSt&&notifyReport(r))log('Report '+patch.status.toLowerCase(),'Report',id,r.status);else log(LABEL[c]+' updated',LABEL[c],id,r.name||r.code||'')}
     save();return r},
   log:function(a,t,id,d){log(a,t,id,d);save()},
   remove:function(c,id){
@@ -105,6 +112,19 @@ var S=window.MoveStore={CATEGORIES:CATS,MOVEMENT_TYPES:MT,OBJECTS:OB,INTERACTION
   }
 };
 Object.defineProperty(S,'SUPERVISORS',{get:function(){return db.supervisors.filter(function(v){return v.status==='Active'}).map(function(v){return v.name})}});
+S.role=function(){return db.settings.role};
+S.svId=function(){return db.settings.svId};
+S.setRole=function(role,svId){db.settings.role=role;if(svId)db.settings.svId=svId;save()};
+S.me=function(){return S.byId('supervisors',db.settings.svId)};
+S.mySessions=function(){var m=S.me();return m?db.sessions.filter(function(x){return x.supervisor===m.name}):[]};
+S.myParticipants=function(){var m=S.me(),ids={};if(!m)return[];m.participantIds.forEach(function(i){ids[i]=1});S.mySessions().forEach(function(x){ids[x.participantId]=1});return db.participants.filter(function(p){return ids[p.id]})};
+S.attendanceOf=function(sid){return db.attendance.filter(function(a){return a.sessionId===sid})[0]||null};
+S.setAttendance=function(sid,status,note){var se=S.byId('sessions',sid),a=S.attendanceOf(sid),at=new Date().toISOString();if(!se)return null;
+  if(a){a.status=status;a.note=note||'';a.at=at}else db.attendance.push({id:nextId('attendance'),sessionId:sid,participantId:se.participantId,status:status,note:note||'',at:at});
+  log('Attendance updated','Session',sid,status);save();return true};
+S.addNote=function(pid,text){var m=S.me();db.notes.unshift({id:nextId('notes'),participantId:pid,supervisorId:m?m.id:null,author:m?m.name:'Admin',text:text,at:new Date().toISOString()});log('Participant note added','Participant',pid);save()};
+S.markRead=function(id,v){var n=db.notifications.filter(function(x){return x.id===id})[0];if(n){n.read=v;save()}};
+S.markAllRead=function(svId){db.notifications.forEach(function(n){if(n.supervisorId===svId)n.read=true});save()};
 S.settings=function(){return db.settings};
 S.saveSettings=function(p){Object.keys(p).forEach(function(k){db.settings[k]=p[k]});log('Settings updated','System','—');save()};
 S.renameSupervisor=function(o,n){db.sessions.forEach(function(x){if(x.supervisor===o)x.supervisor=n});save()};
