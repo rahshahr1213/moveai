@@ -56,6 +56,14 @@ var TOP_ACTIVITIES = [
   {name:'Crawl pattern', count:164, max:412}
 ];
 
+var DASH=null;
+function syncStore(){
+  DASH=window.MoveStore.dash(); RANGE_DATA=DASH.range; SESSIONS=DASH.sessions; TOP_ACTIVITIES=DASH.top;
+  SEARCH_INDEX = SESSIONS.map(function(x){ return {type:'Session', label:x.name+' \u2014 '+x.id, sub:x.activity}; })
+    .concat(window.MoveStore.get('participants').map(function(x){ return {type:'Participant', label:x.name+' \u2014 '+x.code, sub:x.ageGroup}; }))
+    .concat(SUPERVISORS.map(function(x){ return {type:'Supervisor', label:x.name, sub:x.role}; }));
+}
+var SEARCH_INDEX=[];
 var ICONS = {
   check:'<path d="M20 6 9 17l-5-5"/>', user:'<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.3 2.9-6 7-6s7 2.7 7 6"/>',
   file:'<path d="M6 2h9l4 4v16H6z"/><path d="M15 2v4h4"/>', alert:'<path d="M12 9v4"/><circle cx="12" cy="16.2" r=".4" fill="currentColor"/><path d="M10.4 3.6 2.6 18a1.8 1.8 0 0 0 1.6 2.7h15.6A1.8 1.8 0 0 0 21.4 18L13.6 3.6a1.8 1.8 0 0 0-3.2 0z"/>',
@@ -82,13 +90,13 @@ function destroyChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[i
 /* ================= page renderers ================= */
 var PAGES = {
   overview: { crumb:'Overview', render: renderOverview },
-  participants: { crumb:'Participants', render: function(el){ renderPlaceholder(el,'Participants directory','user2','Browse, filter and manage every participant enrolled at The Cube. This view is next on the build list.'); } },
-  sessions: { crumb:'Sessions', render: renderSessionsPage },
-  tracking: { crumb:'Movement tracking', render: function(el){ renderPlaceholder(el,'Movement tracking','move','Live and historical motion capture will render here once camera and AI processing are connected.'); } },
+  participants: { crumb:'Participants', render: function(el){ MovePages.participants(el); } },
+  sessions: { crumb:'Sessions', render: function(el){ MovePages.sessions(el); } },
+  tracking: { crumb:'Movement tracking', render: function(el){ MovePages.tracking(el); } },
   analytics: { crumb:'Analytics', render: function(el){ renderPlaceholder(el,'Analytics','chart','Deeper cross-session analytics and cohort comparisons are planned for the next milestone.'); } },
-  reports: { crumb:'Reports', render: function(el){ renderPlaceholder(el,'Reports','file','Scheduled and on-demand reporting will live here, built on the same export pipeline as the dashboard.'); } },
+  reports: { crumb:'Reports', render: function(el){ MovePages.reports(el); } },
   supervisors: { crumb:'Supervisors', render: function(el){ renderPlaceholder(el,'Supervisor management','user2','Role assignment, shift coverage and permissions for supervisors will be managed from this page.'); } },
-  settings: { crumb:'Settings', render: function(el){ renderPlaceholder(el,'Settings','gear','Environment, sensor and account configuration will be available here.'); } },
+  settings: { crumb:'Settings', render: function(el){ MovePages.settings(el); } },
   profile: { crumb:'User profile', render: function(el){ renderPlaceholder(el,'User profile','user2','Sarah Miller\'s profile, activity log and preferences will be available here.'); } }
 };
 
@@ -223,7 +231,7 @@ function renderKpis(root){
     {label:'Total sessions', value:d.kpi.sessions.toLocaleString(), delta:d.kpiDelta.sessions, unit:'%', note:'vs previous period', bg:'teal-soft', fg:'teal2', icon:'<rect x="3" y="4" width="18" height="17" rx="2.5"/><path d="M3 9h18"/>'},
     {label:'Completed sessions', value:d.kpi.completed.toLocaleString(), delta:d.kpiDelta.completed, unit:'%', note:'completion rate', bg:'teal-soft', fg:'teal2', icon:'<circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/>'},
     {label:'Avg. session duration', value:d.kpi.duration, delta:d.kpiDelta.duration, unit:'%', note:'vs previous period', bg:'amber-soft', fg:'amber', icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'},
-    {label:'Total activities', value:'5', delta:null, note:'tracked activity types', bg:'blue-soft', fg:'blue', icon:'<path d="M4 20V10M12 20V4M20 20v-7"/>'},
+    {label:'Total activities', value:String(window.MoveStore.get('activities').length), delta:null, note:'activity types', bg:'blue-soft', fg:'blue', icon:'<path d="M4 20V10M12 20V4M20 20v-7"/>'},
     {label:'Pending reports', value:String(d.kpi.pending), delta:null, note:'needs review', bg:'red-soft', fg:'red', icon:'<path d="M6 2h9l4 4v16H6z"/><path d="M15 2v4h4"/>'}
   ];
   var fgMap = {blue:'var(--blue)', teal2:'#0a6b61', amber:'var(--amber)', red:'var(--red)'};
@@ -371,13 +379,13 @@ function buildCharts(){
 
   charts.movementChart = new Chart(document.getElementById('movementChart'), {
     type:'doughnut',
-    data:{ labels:['Walking','Reaching','Jumping','Balancing','Crawling'], datasets:[{data:[38,24,16,14,8], backgroundColor:['#2a78d6','#0d9488','#eda100','#6250d6','#cdd3dc'], borderColor:ink('--surface'), borderWidth:3}] },
+    data:{ labels:DASH.mv.labels, datasets:[{data:DASH.mv.data, backgroundColor:['#2a78d6','#0d9488','#eda100','#6250d6','#cdd3dc'], borderColor:ink('--surface'), borderWidth:3}] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return c.label+': '+c.raw+'%'}}}} }
   });
 
   charts.objectsChart = new Chart(document.getElementById('objectsChart'), {
     type:'bar',
-    data:{ labels:['Light panels','Floor pads','Projection wall','Soft blocks','Sensor hoops'], datasets:[{data:[412,356,298,210,164], backgroundColor:'#0d9488', borderRadius:4, barThickness:14}] },
+    data:{ labels:DASH.ob.labels, datasets:[{data:DASH.ob.data, backgroundColor:'#0d9488', borderRadius:4, barThickness:14}] },
     options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return c.raw+' interactions'}}}},
       scales:{ x:{grid:{color:ink('--border')}, ticks:{color:ink('--ink-faint')}, border:{display:false}}, y:{grid:{display:false}, ticks:{color:ink('--ink-soft')}, border:{display:false}} }
     }
@@ -386,13 +394,8 @@ function buildCharts(){
   charts.activityDistChart = new Chart(document.getElementById('activityDistChart'), {
     type:'bar',
     data:{
-      labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-      datasets:[
-        {label:'Obstacle crossing', data:[40,52,38,61,55,30,22], backgroundColor:'#2a78d6', borderRadius:4},
-        {label:'Ball push', data:[30,28,34,26,40,20,18], backgroundColor:'#0d9488', borderRadius:4},
-        {label:'Balance course', data:[22,18,26,20,24,15,12], backgroundColor:'#eda100', borderRadius:4},
-        {label:'Free play', data:[15,20,12,18,16,25,20], backgroundColor:'#6250d6', borderRadius:4}
-      ]
+      labels:DASH.act.labels,
+      datasets:DASH.act.datasets
     },
     options:{
       responsive:true, maintainAspectRatio:false,
@@ -409,6 +412,7 @@ function pageFromHash(){
 }
 function setActivePage(page, opts){
   if(!PAGES[page]) page = 'overview';
+  syncStore();
   document.querySelectorAll('.nav-item[data-page]').forEach(function(n){ n.classList.toggle('active', n.dataset.page===page); });
   document.getElementById('crumbPage').textContent = PAGES[page].crumb;
   document.title = PAGES[page].crumb + ' \u00b7 MOVE AI';
@@ -421,6 +425,7 @@ function setActivePage(page, opts){
   }
   if(!(opts && opts.keepScroll)) window.scrollTo(0, 0);
 }
+window.MoveUI={toast:showToast,go:function(p){setActivePage(p)}};
 function closeNav(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.remove('show'); }
 
 document.addEventListener('click', function(e){
@@ -477,7 +482,7 @@ document.getElementById('exportBtn').addEventListener('click', function(){
 });
 
 /* ---- search ---- */
-var SEARCH_INDEX = SESSIONS.map(function(s){ return {type:'Session', label:s.name+' — '+s.id, sub:s.activity}; })
+var SEARCH_INDEX_INIT = SESSIONS.map(function(s){ return {type:'Session', label:s.name+' — '+s.id, sub:s.activity}; })
   .concat(SUPERVISORS.map(function(s){ return {type:'Supervisor', label:s.name, sub:s.role}; }));
 var searchInput = document.getElementById('searchInput'), searchResults = document.getElementById('searchResults');
 searchInput.addEventListener('input', function(){

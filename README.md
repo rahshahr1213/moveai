@@ -4,6 +4,8 @@ Movement-analytics dashboard for interactive environments, published as a static
 
 **Live site:** `https://<your-github-username>.github.io/move-ai/`
 
+> **Data is local.** Participants, sessions, movement events, object interactions and reports are stored in your browser's `localStorage` (via `assets/js/store.js`). Nothing is shared between users or devices. Use **Settings → Export JSON** for backups.
+
 > **Demo build.** GitHub Pages only serves static files. There is no Laravel, PHP or MySQL here, and none of it is simulated as real. All numbers, participants, sessions and notifications come from a sample dataset inside `assets/js/app.js`, and actions such as export or sign-out only show a demo toast.
 
 ## Stack
@@ -16,7 +18,9 @@ move-ai/
 ├── 404.html                    # friendly not-found page
 ├── assets/
 │   ├── css/styles.css          # all styling, light + dark, responsive breakpoints
-│   ├── js/app.js               # demo data, page renderers, charts, hash router
+│   ├── js/store.js             # data service: CRUD, seed data, import/export, dashboard stats
+│   ├── js/pages.js             # Participants, Sessions, Tracking, Reports, Settings screens
+│   ├── js/app.js               # dashboard, charts, hash router
 │   └── favicon.svg
 ├── scripts/build.sh            # assembles + validates the site into _site/
 ├── .github/workflows/deploy.yml
@@ -78,4 +82,4 @@ Every later push to `main` rebuilds and redeploys automatically.
 
 ## Moving to a real backend later
 
-When you add Laravel/PHP/MySQL, host it separately (a VPS, Forge, Railway, etc.) and have this frontend call its JSON API. Replace the sample data arrays at the top of `assets/js/app.js` (`SESSIONS`, `SUPERVISORS`, `RANGE_DATA`, ...) with `fetch()` calls, and enable CORS on the API for your `github.io` origin.
+When you add Laravel/PHP/MySQL, host it separately (a VPS, Forge, Railway, etc.) and have this frontend call its JSON API. Replace the internals of `assets/js/store.js` (`get`, `add`, `update`, `remove`) with `fetch()` calls (the UI only talks to `MoveStore`), and enable CORS on the API for your `github.io` origin.
