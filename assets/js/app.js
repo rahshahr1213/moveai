@@ -411,6 +411,8 @@ function buildCharts(){
 MoveAN.tabs.forEach(function(t){var k=t[0];PAGES[k]={crumb:'Analytics \u00b7 '+t[1],render:function(el){MoveAN.pages[k](el)}}});
 /* ---- Supervisor panel pages + frontend-only role simulation ---- */
 MoveSV.nav.forEach(function(n){var k=n[0].slice(3);PAGES[n[0]]={crumb:n[1],render:function(el){MoveSV.pages[k](el);MoveSV.badge()}}});
+/* ---- AI & cameras (Admin only; supervisors are redirected by setActivePage) ---- */
+MoveAIUI.nav.forEach(function(n){PAGES[n[0]]={crumb:'AI \u00b7 '+n[1],render:function(el){MoveAIUI.pages[n[0]](el)}}});
 var adminNav=document.getElementById('nav').innerHTML;
 function applyRole(){
   var sup=MoveStore.role()==='Supervisor',sel=document.getElementById('roleSel'),sv=document.getElementById('svSel');

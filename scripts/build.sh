@@ -33,7 +33,7 @@ done < <(grep -oE '(href|src)="\./[^"]+"' "$OUT/index.html" | sed -E 's/^(href|s
 
 # 3) JavaScript must parse (catches the kind of syntax error a static host would hide).
 if command -v node >/dev/null 2>&1; then
-  node --check "$OUT/assets/js/app.js" || fail=1
+  for f in app ai ai-core; do node --check "$OUT/assets/js/$f.js" || fail=1; done
 fi
 
 if [ "$fail" -ne 0 ]; then exit 1; fi

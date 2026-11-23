@@ -105,3 +105,20 @@ Sidebar: **Analytics** opens ten tabs: Overview, Participants, Movement, Activit
 All numbers are calculated in `assets/js/analytics.js` (pure functions, no DOM) from records stored in this browser. Missing values show as "—" or "Not enough data"; nothing is estimated, except distance/speed on the Movement page, which are labelled demo-derived estimates.
 Exports on each page: CSV, JSON, and **Print / Save as PDF** (uses the browser print dialog; choose "Save as PDF").
 Run the calculation tests: `node tests/analytics.test.js`
+
+## AI & cameras (Admin, frontend demo)
+
+Sidebar section **AI & cameras**: AI dashboard, Cameras (CRUD, status, calibration), Live monitoring, Vision data (detection, tracking, pose, movement metrics, interactions), Cube zones, Object library, AI event timeline, AI documentation (architecture, API contracts, privacy, backend requirements).
+
+**What is real and what is simulated**
+- Real in the browser: camera/zone/object CRUD, a USB webcam preview after you click and allow it (stops when you stop or leave the page), metric calculations in `assets/js/ai-core.js`, the API client and mock adapter.
+- Simulated (always labelled): the 4 demo cameras, detections, tracks, poses, objects, interactions, events and processing jobs. Turn **Demo Mode** off on the AI dashboard to hide all simulated data.
+- Not available on GitHub Pages: AI processing, RTSP/IP streams, saved video. These need a separate backend or gateway (see the in-app documentation).
+
+**Files:** `assets/js/ai-core.js` (pure logic, data models v1, API layer) and `assets/js/ai.js` (UI). Data is stored in `localStorage` under `moveai.ai.v1`, separate from existing MOVE AI data.
+
+**API layer:** `MoveAI.createApi({getDb, baseUrl, live})`. Mock adapter is the default. Live calls are made only when you set a base URL in Live mode and press *Test connection*. Never put credentials in the URL.
+
+**Security:** No credentials are accepted or stored. Frontend role switching is a simulation, not authorisation. No facial recognition is used. Tracking IDs are temporary and are not participant identities.
+
+Tests: `node tests/ai.test.js` (also `node tests/analytics.test.js`).
