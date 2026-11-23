@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 var KEY='moveai.data.v1', BKEY='moveai.backup.v1', COLS=['participants','sessions','activities','movements','objects','reports'];
-var PFX={participants:'PT',sessions:'S',activities:'A',movements:'EV',objects:'OI',reports:'R'};
+var PFX={participants:'PT',sessions:'S',activities:'A',movements:'EV',objects:'OI',reports:'R',supervisors:'SV',audit:'AU'};
 var MT=['Walking','Running','Jumping','Crawling','Balancing','Reaching','Climbing','Turning','Stretching','Other'];
 var OB=['Balls','Elastic Elements','Walls','Floor Areas','Interactive Objects','Other'];
 var IT=['Touch','Push','Pull','Throw','Step on','Climb on','Other'];
@@ -36,24 +36,42 @@ function seed(){
   }
   return d;
 }
+var CATS=['Movement','Balance','Coordination','Obstacle Navigation','Object Interaction','Exploration'];
+var LABEL={participants:'Participant',sessions:'Session',activities:'Activity',movements:'Movement event',objects:'Object interaction',reports:'Report',supervisors:'Supervisor'};
+function ensure(){
+  if(!Array.isArray(db.supervisors)){
+    var names=SUP.slice();db.sessions.forEach(function(x){if(x.supervisor&&names.indexOf(x.supervisor)<0)names.push(x.supervisor)});
+    db.supervisors=names.map(function(n,i){var pid={};db.sessions.forEach(function(x){if(x.supervisor===n)pid[x.participantId]=1});
+      return{id:'SV-'+(101+i),name:n,email:n.toLowerCase().replace(/[^a-z]+/g,'.')+'@example.org',status:'Active',participantIds:Object.keys(pid),createdAt:iso(dAgo(90))}});
+  }
+  if(!Array.isArray(db.audit))db.audit=[];
+  if(!db.settings||typeof db.settings!=='object')db.settings={org:'MOVE AI Demo Lab',platform:'MOVE AI',actor:'Admin (demo)',sessionMinutes:20,sessionStatus:'Pending',pageSize:10,categories:CATS.slice()};
+}
+function log(action,type,id,detail){
+  db.audit.unshift({id:nextId('audit'),actor:db.settings.actor||'Admin (demo)',action:action,type:type,recordId:id||'—',detail:detail||'',at:new Date().toISOString()});
+  if(db.audit.length>500)db.audit.length=500;
+}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){return false}return true}
 function valid(o){return o&&typeof o==='object'&&COLS.every(function(c){return Array.isArray(o[c])})}
-function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(valid(r)){db=r;return}}catch(e){}db=seed();save()}
+function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(valid(r)){db=r;ensure();return}}catch(e){}db=seed();ensure();save()}
 function nextId(c){var n=0;db[c].forEach(function(r){var m=/(\d+)$/.exec(r.id);if(m&&+m[1]>n)n=+m[1]});return PFX[c]+'-'+(n+1)}
-var S=window.MoveStore={MOVEMENT_TYPES:MT,OBJECTS:OB,INTERACTIONS:IT,SUPERVISORS:SUP,STATUSES:STAT,minutes:mins,
+var S=window.MoveStore={CATEGORIES:CATS,MOVEMENT_TYPES:MT,OBJECTS:OB,INTERACTIONS:IT,STATUSES:STAT,minutes:mins,
   get:function(c){return db[c].slice()},
   byId:function(c,id){return db[c].filter(function(r){return r.id===id})[0]||null},
-  add:function(c,rec){rec.id=rec.id||nextId(c);db[c].push(rec);save();return rec},
-  update:function(c,id,patch){var r=S.byId(c,id);if(!r)return null;Object.keys(patch).forEach(function(k){r[k]=patch[k]});save();return r},
+  add:function(c,rec){rec.id=rec.id||nextId(c);db[c].push(rec);if(LABEL[c])log(LABEL[c]+' created',LABEL[c],rec.id,rec.name||rec.code||'');save();return rec},
+  update:function(c,id,patch){var r=S.byId(c,id);if(!r)return null;var oldSt=r.status,oldSup=r.supervisor;Object.keys(patch).forEach(function(k){r[k]=patch[k]});
+    if(LABEL[c]){if(c==='sessions'&&patch.status==='Completed'&&oldSt!=='Completed')log('Session completed','Session',id,r.code);else if(c==='sessions'&&patch.supervisor&&patch.supervisor!==oldSup)log('Supervisor assigned','Session',id,patch.supervisor);else if(c==='reports'&&patch.status&&patch.status!==oldSt)log('Report '+patch.status.toLowerCase(),'Report',id,r.status);else log(LABEL[c]+' updated',LABEL[c],id,r.name||r.code||'')}
+    save();return r},
+  log:function(a,t,id,d){log(a,t,id,d);save()},
   remove:function(c,id){
     var sess=c==='participants'?db.sessions.filter(function(s){return s.participantId===id}).map(function(s){return s.id}):c==='sessions'?[id]:[];
     sess.forEach(function(sid){['movements','objects','reports'].forEach(function(x){db[x]=db[x].filter(function(r){return r.sessionId!==sid})});db.sessions=db.sessions.filter(function(s){return s.id!==sid})});
-    db[c]=db[c].filter(function(r){return r.id!==id});save()},
-  exportJSON:function(){return JSON.stringify({app:'MOVE AI',version:1,exported:new Date().toISOString(),data:db},null,2)},
-  importJSON:function(txt){var o=JSON.parse(txt),d=o&&o.data?o.data:o;if(!valid(d))throw new Error('Invalid backup file: missing collections.');try{localStorage.setItem(BKEY,JSON.stringify(db))}catch(e){}db=d;save()},
-  reset:function(){try{localStorage.setItem(BKEY,JSON.stringify(db))}catch(e){}db=seed();save()},
+    if(LABEL[c])log(LABEL[c]+' deleted',LABEL[c],id);db[c]=db[c].filter(function(r){return r.id!==id});if(c==='participants')db.supervisors.forEach(function(v){v.participantIds=v.participantIds.filter(function(x){return x!==id})});save()},
+  exportJSON:function(){log('Data exported','System','—');save();return JSON.stringify({app:'MOVE AI',version:1,exported:new Date().toISOString(),data:db},null,2)},
+  importJSON:function(txt){var o=JSON.parse(txt),d=o&&o.data?o.data:o;if(!valid(d))throw new Error('Invalid backup file: missing collections.');try{localStorage.setItem(BKEY,JSON.stringify(db))}catch(e){}db=d;ensure();log('Data imported','System','—');save()},
+  reset:function(){try{localStorage.setItem(BKEY,JSON.stringify(db))}catch(e){}db=seed();ensure();log('Demo data restored','System','—');save()},
   hasBackup:function(){return !!localStorage.getItem(BKEY)},
-  restoreBackup:function(){var b=JSON.parse(localStorage.getItem(BKEY));if(valid(b)){db=b;save();return true}return false},
+  restoreBackup:function(){var b=JSON.parse(localStorage.getItem(BKEY));if(valid(b)){db=b;ensure();log('Previous data restored','System','—');save();return true}return false},
   name:function(pid){var p=S.byId('participants',pid);return p?p.name:'(deleted)'},
   dash:function(){
     var P=db.participants,SS=db.sessions,out={range:{}};
@@ -86,5 +104,9 @@ var S=window.MoveStore={MOVEMENT_TYPES:MT,OBJECTS:OB,INTERACTIONS:IT,SUPERVISORS
     return out;
   }
 };
+Object.defineProperty(S,'SUPERVISORS',{get:function(){return db.supervisors.filter(function(v){return v.status==='Active'}).map(function(v){return v.name})}});
+S.settings=function(){return db.settings};
+S.saveSettings=function(p){Object.keys(p).forEach(function(k){db.settings[k]=p[k]});log('Settings updated','System','—');save()};
+S.renameSupervisor=function(o,n){db.sessions.forEach(function(x){if(x.supervisor===o)x.supervisor=n});save()};
 load();
 })();

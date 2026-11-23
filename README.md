@@ -83,3 +83,12 @@ Every later push to `main` rebuilds and redeploys automatically.
 ## Moving to a real backend later
 
 When you add Laravel/PHP/MySQL, host it separately (a VPS, Forge, Railway, etc.) and have this frontend call its JSON API. Replace the internals of `assets/js/store.js` (`get`, `add`, `update`, `remove`) with `fetch()` calls (the UI only talks to `MoveStore`), and enable CORS on the API for your `github.io` origin.
+
+## Admin panel (phase 1)
+
+- **Activities**: activity library with categories, difficulty, activate/deactivate, add/edit/delete.
+- **Supervisors**: list, profile, activate/deactivate, assign participants and sessions, pending reports.
+- **Audit logs**: records create/update/delete, session completed, supervisor assigned, report status changes, data import/export. Search and filters.
+- **Settings**: organization, defaults, activity categories (all saved in the browser only).
+
+All data is local demo storage (localStorage). Nothing here is real security or a real server.

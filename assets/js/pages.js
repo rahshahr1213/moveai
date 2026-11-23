@@ -130,5 +130,6 @@ P.settings=function(el){el=fresh(el);
   el.addEventListener('change',function(e){if(e.target.id!=='fi'||!e.target.files[0])return;var r=new FileReader();r.onload=function(){try{S.importJSON(r.result);draw();toast('Import complete')}catch(x){toast('Import failed: '+x.message)}};r.readAsText(e.target.files[0])});
   draw();
 };
+P._h={fresh:fresh,esc:esc,toast:toast,opts:opts,badge:badge,btn:btn,table:table,head:head,demoNote:demoNote,form:form,confirmDlg:confirmDlg,act:act,modal:modal};
 window.MovePages=P;
 })();

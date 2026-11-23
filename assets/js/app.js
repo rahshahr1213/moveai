@@ -95,8 +95,10 @@ var PAGES = {
   tracking: { crumb:'Movement tracking', render: function(el){ MovePages.tracking(el); } },
   analytics: { crumb:'Analytics', render: function(el){ renderPlaceholder(el,'Analytics','chart','Deeper cross-session analytics and cohort comparisons are planned for the next milestone.'); } },
   reports: { crumb:'Reports', render: function(el){ MovePages.reports(el); } },
-  supervisors: { crumb:'Supervisors', render: function(el){ renderPlaceholder(el,'Supervisor management','user2','Role assignment, shift coverage and permissions for supervisors will be managed from this page.'); } },
-  settings: { crumb:'Settings', render: function(el){ MovePages.settings(el); } },
+  supervisors: { crumb:'Supervisors', render: function(el){ MoveAdmin.supervisors(el); } },
+  activities: { crumb:'Activities', render: function(el){ MoveAdmin.activities(el); } },
+  audit: { crumb:'Audit logs', render: function(el){ MoveAdmin.audit(el); } },
+  settings: { crumb:'Settings', render: function(el){ MovePages.settings(el); MoveAdmin.platform(document.getElementById('content')); } },
   profile: { crumb:'User profile', render: function(el){ renderPlaceholder(el,'User profile','user2','Sarah Miller\'s profile, activity log and preferences will be available here.'); } }
 };
 
