@@ -413,10 +413,13 @@ MoveAN.tabs.forEach(function(t){var k=t[0];PAGES[k]={crumb:'Analytics \u00b7 '+t
 MoveSV.nav.forEach(function(n){var k=n[0].slice(3);PAGES[n[0]]={crumb:n[1],render:function(el){MoveSV.pages[k](el);MoveSV.badge()}}});
 /* ---- AI & cameras (Admin only; supervisors are redirected by setActivePage) ---- */
 MoveAIUI.nav.forEach(function(n){PAGES[n[0]]={crumb:'AI \u00b7 '+n[1],render:function(el){MoveAIUI.pages[n[0]](el)}}});
+/* ---- Kids Zone (child view hides the admin chrome; adult pages stay inside the app) ---- */
+MoveKZ.nav.forEach(function(n){PAGES[n[0]]={crumb:'Kids Zone',render:function(el){MoveKZ.pages[n[0]](el)}}});
+var KZ_SV='<div class="nav-label">Kids Zone</div><button class="nav-item" data-page="kz-home">Kids Zone (child view)</button><button class="nav-item" data-page="kz-adult">Child management</button>';
 var adminNav=document.getElementById('nav').innerHTML;
 function applyRole(){
   var sup=MoveStore.role()==='Supervisor',sel=document.getElementById('roleSel'),sv=document.getElementById('svSel');
-  document.getElementById('nav').innerHTML=sup?MoveSV.navHtml():adminNav;
+  document.getElementById('nav').innerHTML=sup?MoveSV.navHtml()+KZ_SV:adminNav;
   sel.value=sup?'Supervisor':'Admin';
   sv.hidden=!sup;sv.innerHTML=MoveStore.get('supervisors').filter(function(v){return v.status==='Active'}).map(function(v){return'<option value="'+v.id+'"'+(v.id===MoveStore.svId()?' selected':'')+'>'+v.name+'</option>'}).join('');
   MoveSV.badge();
@@ -429,9 +432,9 @@ function pageFromHash(){
 }
 function setActivePage(page, opts){
   if(!PAGES[page]) page = 'overview';
-  var supRole = MoveStore.role()==='Supervisor', isSv = page.indexOf('sv-')===0;
+  var supRole = MoveStore.role()==='Supervisor', isSv = page.indexOf('sv-')===0, isKz = page.indexOf('kz-')===0;
   var wanted = page;
-  if(supRole && !isSv) page = 'sv-overview'; else if(!supRole && isSv) page = 'overview';
+  if(supRole && !isSv && !isKz) page = 'sv-overview'; else if(!supRole && isSv) page = 'overview';
   if(wanted !== page && opts && opts.fromHash) history.replaceState(null, '', '#/' + page);
   syncStore();
   document.querySelectorAll('.nav-item[data-page]').forEach(function(n){ n.classList.toggle('active', n.dataset.page===(page.indexOf('an-')===0?'analytics':page)); });
@@ -439,6 +442,7 @@ function setActivePage(page, opts){
   document.title = PAGES[page].crumb + ' \u00b7 MOVE AI';
   var content = document.getElementById('content');
   PAGES[page].render(content);
+  if(window.MoveKZ) MoveKZ.chrome(page);
   closeNav();
   /* keep the URL in sync (hash routing works on GitHub Pages without server rewrites) */
   if(!(opts && opts.fromHash) && pageFromHash() !== page){
@@ -519,6 +523,7 @@ searchInput.addEventListener('focus', function(){ if(searchInput.value.trim()) s
 /* back/forward buttons and shared deep links such as #/sessions */
 applyRole();
 window.addEventListener('popstate', function(){ setActivePage(pageFromHash(), {fromHash:true}); });
+window.MoveNav = function(p,o){ setActivePage(p,o); };
 window.addEventListener('hashchange', function(){ if((document.querySelector('.nav-item.active')||{dataset:{}}).dataset.page !== (pageFromHash().indexOf('an-')===0?'analytics':pageFromHash())) setActivePage(pageFromHash(), {fromHash:true}); });
 setActivePage(pageFromHash(), {fromHash:true, keepScroll:true});
 })();

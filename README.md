@@ -122,3 +122,18 @@ Sidebar section **AI & cameras**: AI dashboard, Cameras (CRUD, status, calibrati
 **Security:** No credentials are accepted or stored. Frontend role switching is a simulation, not authorisation. No facial recognition is used. Tracking IDs are temporary and are not participant identities.
 
 Tests: `node tests/ai.test.js` (also `node tests/analytics.test.js`).
+
+## MOVE AI Kids Zone
+
+A separate, child-friendly experience inside the same app. Sidebar group **Kids Zone**: *Kids Zone (child view)*, *Adult / Supervisor view*, *Kids Zone admin*.
+
+- **Child view** (full screen, no admin menus): Home, My Adventures (+ activity detail), Movement Explorer, My Progress, Achievements, My Cube World, Session History, Object Discovery, My Profile. Only first names are shown. Progress is compared with the child's own earlier records. There are no leaderboards, messaging, purchases or rewards for personal information. Reduced-motion settings are respected.
+- **Adult / Supervisor view:** filters (date, activity, session, zone), overview, sessions with attendance, detailed movement and object tables, achievements, staff-only observations, activity assignment, profile editing, report drafts (added to the existing Reports page) and print.
+- **Admin:** analytics, children enrollment, adventure titles and zones, Cube zones, achievement definitions, star rules, mascot and theme, demo reset.
+- Supervisors only see children assigned to them in the role simulation.
+
+**Data:** Kids Zone reads the existing participants, sessions, activities, movement events, object interactions, attendance and reports. It adds only its own settings, enrollment (15 demo children), zones, achievement definitions, assignments and observations under `moveai.kz.v1`. Stars, badges, insights and progress are calculated from recorded data. Movement values are manual demo entries, not AI measurements. Everything is stored in this browser only and is not shared between devices.
+
+**Limits:** There are no real parent accounts. Child/adult and role switching is a frontend simulation, not security. Insights describe recorded activity only and make no emotional, medical or developmental claims.
+
+Tests: `node tests/kz.test.js`.
